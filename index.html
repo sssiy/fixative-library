@@ -44024,4 +44024,41 @@ const p=dlg.querySelector('.modal-detail');p.textContent=m.caption+(m.formula?' 
 if(m.source.startsWith('https://')){const a=document.createElement('a');a.href=m.source;a.target='_blank';a.rel='noopener';a.textContent='PubChem结构记录';p.append(a)}else{p.append(document.createTextNode(m.source))}
 dlg.showModal()}));
 dlg.querySelector('.modal-close').addEventListener('click',()=>dlg.close());dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
-</script></main></html>
+</script></main>
+<!-- Persistent horizontal table scrollbar -->
+<style>
+body{padding-bottom:42px}
+#table-scrollbar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#e3edf0;border-top:1px solid #aebfc4;padding:5px 24px 7px;box-shadow:0 -2px 8px #123b4718}
+#table-scroll-track{height:22px;overflow-x:scroll;overflow-y:hidden;scrollbar-color:#527c88 #dbe6ea;scrollbar-width:auto}
+#table-scroll-track::-webkit-scrollbar{height:16px}
+#table-scroll-track::-webkit-scrollbar-track{background:#dbe6ea;border-radius:8px}
+#table-scroll-track::-webkit-scrollbar-thumb{background:#527c88;border-radius:8px;border:2px solid #dbe6ea}
+#table-scroll-track:focus-visible{outline:2px solid #147283;outline-offset:2px}
+#table-scroll-spacer{height:1px}
+@media(max-width:600px){#table-scrollbar{padding-left:12px;padding-right:12px}}
+</style>
+<div id="table-scrollbar" hidden><div id="table-scroll-track" tabindex="0" role="region" aria-label="表格横向滚动条：左右拖动查看其他列"><div id="table-scroll-spacer"></div></div></div>
+<script>
+(()=>{
+ const tableScroll=document.querySelector('.scroll');
+ const bar=document.getElementById('table-scrollbar');
+ const track=document.getElementById('table-scroll-track');
+ const spacer=document.getElementById('table-scroll-spacer');
+ let pending=false;
+ function refresh(){
+  pending=false;
+  const range=tableScroll.scrollWidth-tableScroll.clientWidth;
+  bar.hidden=range<=1;
+  if(!bar.hidden){spacer.style.width=(track.clientWidth+range)+'px';track.scrollLeft=tableScroll.scrollLeft;}
+ }
+ function schedule(){if(!pending){pending=true;requestAnimationFrame(refresh);}}
+ track.addEventListener('scroll',()=>{if(Math.abs(tableScroll.scrollLeft-track.scrollLeft)>1)tableScroll.scrollLeft=track.scrollLeft;},{passive:true});
+ tableScroll.addEventListener('scroll',()=>{if(Math.abs(track.scrollLeft-tableScroll.scrollLeft)>1)track.scrollLeft=tableScroll.scrollLeft;},{passive:true});
+ new ResizeObserver(schedule).observe(tableScroll);
+ new ResizeObserver(schedule).observe(tableScroll.querySelector('table'));
+ document.querySelector('.controls').addEventListener('input',schedule);
+ window.addEventListener('resize',schedule);
+ refresh();
+})();
+</script>
+</html>
